@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish Windows binary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Resolve version
+        id: ver
+        run: echo "version=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Build VRCLaunch.exe
+        env:
+          GOOS: windows
+          GOARCH: amd64
+          CGO_ENABLED: '0'
+        run: |
+          go build \
+            -trimpath \
+            -ldflags="-H windowsgui -s -w -X main.version=${{ steps.ver.outputs.version }}" \
+            -o VRCLaunch.exe \
+            .
+          ls -lh VRCLaunch.exe
+
+      - name: Package zip + checksum
+        run: |
+          ARCHIVE="VRCLaunch-${{ steps.ver.outputs.version }}-windows-amd64.zip"
+          zip "$ARCHIVE" VRCLaunch.exe
+          sha256sum "$ARCHIVE" VRCLaunch.exe > "VRCLaunch-${{ steps.ver.outputs.version }}-checksums.txt"
+          cat "VRCLaunch-${{ steps.ver.outputs.version }}-checksums.txt"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: VRCLaunch ${{ steps.ver.outputs.version }}
+          generate_release_notes: true
+          files: |
+            VRCLaunch.exe
+            VRCLaunch-*-windows-amd64.zip
+            VRCLaunch-*-checksums.txt
