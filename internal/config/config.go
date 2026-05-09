@@ -51,6 +51,18 @@ func Load() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	return LoadFrom(path)
+}
+
+func Save(c *Config) error {
+	path, err := ConfigFile()
+	if err != nil {
+		return err
+	}
+	return SaveTo(path, c)
+}
+
+func LoadFrom(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if errors.Is(err, os.ErrNotExist) {
 		return Default(), nil
@@ -71,24 +83,19 @@ func Load() (*Config, error) {
 	return &c, nil
 }
 
-func Save(c *Config) error {
-	dir, err := ConfigDir()
-	if err != nil {
-		return err
-	}
-	if err := ensureDir(dir); err != nil {
+func SaveTo(path string, c *Config) error {
+	if err := ensureDir(filepath.Dir(path)); err != nil {
 		return fmt.Errorf("mkdir config: %w", err)
 	}
 	data, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
 		return err
 	}
-	tmp := filepath.Join(dir, "config.json.tmp")
+	tmp := path + ".tmp"
 	if err := os.WriteFile(tmp, data, 0o644); err != nil {
 		return fmt.Errorf("write config: %w", err)
 	}
-	final := filepath.Join(dir, "config.json")
-	if err := os.Rename(tmp, final); err != nil {
+	if err := os.Rename(tmp, path); err != nil {
 		return fmt.Errorf("commit config: %w", err)
 	}
 	return nil
