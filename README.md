@@ -84,6 +84,15 @@ UI レンダリング層は Gio ウィジェットへのレイアウト委譲が
 
 このリポジトリには参考実装として `VRCQL/`（Electron 製、フル機能、稼働中）と `VRCL/`（Tauri 製、軽量、不安定）があります（gitignore 対象）。VRCLaunch はそれらのコア機能のみを Go + Gio で再構築した第三の実装です。
 
+## リリース
+
+タグを push すると GitHub Actions が自動で Windows バイナリ（`VRCLaunch.exe` + zip + SHA-256）を Release に添付します：
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
 ## ライセンス
 
 未指定
