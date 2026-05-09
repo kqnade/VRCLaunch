@@ -119,7 +119,7 @@ func TestBuildArgs_FPSOmittedWhenZero(t *testing.T) {
 
 func TestBuildArgs_CustomArgsSplitOnWhitespace(t *testing.T) {
 	p := config.Profile{
-		Index: 1,
+		Index:   1,
 		Options: config.ProfileOptions{CustomArgs: "  --foo   --bar=baz  "},
 	}
 	got := BuildArgs(p, ModeDesktop)
