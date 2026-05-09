@@ -1,0 +1,16 @@
+VRCQL/
+VRCL/
+
+# Go build artifacts
+/VRCLaunch
+/VRCLaunch.exe
+/dist/
+*.exe
+*.test
+*.out
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
